@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 from matplotlib.collections import LineCollection
 from numpy.typing import NDArray
 from pathlib import Path
@@ -78,11 +79,32 @@ def display_graph_struct_interim(G: nx.Graph, pos: dict, font_size: int, node_si
     plt.figure(figsize=(10,7))
     nx.draw_networkx_nodes(G, pos, node_color="skyblue", node_size=node_size)
     nx.draw_networkx_labels(G, pos, font_size=font_size)
-    edges = nx.draw_networkx_edges(G, pos, edge_color=lst_weights, width=lst_weights, edge_cmap=plt.cm.coolwarm)
+    edges = nx.draw_networkx_edges(G, pos, edge_color=lst_weights, width=lst_weights, edge_cmap=plt.colormaps["coolwarm"])
+
     if isinstance(edges, LineCollection):
         plt.colorbar(edges, ax=plt.gca(), label="Poids des arêtes")
+
     plt.axis("off")
+
     output_directory = Path(__file__).resolve().parent.parent / "outputs" / "artificial_graphs"
     output_directory.mkdir(parents=True, exist_ok=True)
+    
     plt.savefig(output_directory / f"{file_name}.png", dpi=300, bbox_inches="tight")
     plt.show()
+
+
+def laplacian(weights_matrix: NDArray[np.float64]) -> NDArray[np.float64]:
+    
+    return np.diag(weights_matrix.sum(1)) - weights_matrix
+
+
+def normalized_laplacian(weights_matrix: NDArray[np.float64]) -> NDArray[np.float64]:
+    nrm = np.linalg.norm(laplacian(weights_matrix), 2)
+
+    return weights_matrix / nrm if nrm > 0 else weights_matrix.copy()
+
+
+def spectrum(weights_matrix: NDArray[np.float64]) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+    eigenvalues, eigenvectors = np.linalg.eigh(laplacian(weights_matrix))
+
+    return np.clip(eigenvalues, 0.0, None), eigenvectors

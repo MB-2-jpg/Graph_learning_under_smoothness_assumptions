@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
-import interim_calcul as ic
+from src.artificial import interim_calcul as ic
 
 
 def algo_baseline(signals_matrix: NDArray[np.float64] , sigma: float, seuil=None) -> NDArray[np.float64]: 

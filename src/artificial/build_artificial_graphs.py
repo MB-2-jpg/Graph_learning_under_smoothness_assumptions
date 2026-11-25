@@ -8,6 +8,7 @@ import control_errors  as ce
 def generate_graph_type_1(weight_threshold: float, sigma: float, law: np.random.Generator) -> tuple[nx.Graph, NDArray[np.float64], NDArray[np.float64]]:
     signals_matrix = ic.generate_nodes_type_1(law)
     weights_matrix = ic.gaussian_weights(signals_matrix, sigma)
+    weights_matrix[weights_matrix < weight_threshold] = 0.0
     G = ic.build_graph_struct_interim(signals_matrix, weights_matrix, weight_threshold)
     
     return (G, signals_matrix, weights_matrix)
@@ -17,6 +18,7 @@ def generate_graph_type_2(alpha: float, sigma: float, law: np.random.Generator) 
     signals_matrix = ic.generate_nodes_type_2(alpha, law)
     weights_matrix = ic.gaussian_weights(signals_matrix, sigma)
     weight_threshold = ic.weight_threshold_graph_type_2(weights_matrix)
+    weights_matrix[weights_matrix < weight_threshold] = 0.0
     G = ic.build_graph_struct_interim(signals_matrix, weights_matrix, weight_threshold)
 
     return (G, signals_matrix, weights_matrix)
@@ -36,6 +38,30 @@ def generate_graph_type_3(numb_nodes: int, law: np.random.Generator) -> tuple[nx
                 weights_matrix[i, j] = 1
                 weights_matrix[j, i] = 1
                 G.add_edge(lst_node_labels[i], lst_node_labels[j], weight=1)
+
+    return (G, weights_matrix)
+
+
+def generate_graph_type_4(numb_nodes: int, law: np.random.Generator) -> tuple[nx.Graph, NDArray[np.float64]]:
+    ce.error_numb_nodes(numb_nodes)
+
+    G = nx.Graph()
+    lst_node_labels = [f"S{i}" for i in range(1, numb_nodes + 1)]
+    G.add_nodes_from(lst_node_labels)
+    weights_matrix = np.zeros((numb_nodes, numb_nodes), dtype=np.float64)
+
+    for i in range(1, numb_nodes):
+        if i == 1:
+            lst_connections = [0]
+        else:
+            degrees = np.array([G.degree(lst_node_labels[j]) for j in range(i)], dtype=np.float64)
+            probabilities = degrees / degrees.sum()
+            lst_connections = law.choice(i, size=2, replace=False, p=probabilities)
+
+        for j in lst_connections:
+            weights_matrix[i, j] = 1.0
+            weights_matrix[j, i] = 1.0
+            G.add_edge(lst_node_labels[i], lst_node_labels[j], weight=1.0)
 
     return (G, weights_matrix)
     
