@@ -1,15 +1,20 @@
 import numpy as np
 from typing import Callable
 from numpy.typing import NDArray
-import filters as fil
-import interim_calcul as ic
+
+from src.artificial import filters as fil
+from src.common import interim_calcul as ic
+from src.artificial import control_errors as ce
 
 
 def add_noise(
     signals: NDArray[np.float64],
     law: np.random.Generator,
-    noise_level: float = 0.1
+    noise_level: float
 ) -> NDArray[np.float64]:
+
+    ce.error_generator(law)
+    ce.error_noise_level(noise_level)
 
     noise = law.normal(size=signals.shape)
 
@@ -29,8 +34,11 @@ def smooth_signals(
     numb_signals: int,
     filter_function: Callable[[NDArray[np.float64]], NDArray[np.float64]],
     law: np.random.Generator,
-    noise_level: float = 0.1
+    noise_level: float
 ) -> NDArray[np.float64]:
+
+    ce.error_numb_signals(numb_signals)
+    ce.error_generator(law)
 
     normalized_weights_matrix = ic.normalized_laplacian(weights_matrix)
 
@@ -47,4 +55,8 @@ def smooth_signals(
         filter_function
     )
 
-    return add_noise(clean_signals, law, noise_level)
+    signals = add_noise(clean_signals, law, noise_level)
+
+    ce.error_signals_values(signals)
+
+    return signals

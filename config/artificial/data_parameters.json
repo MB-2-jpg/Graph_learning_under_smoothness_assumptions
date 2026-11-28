@@ -1,0 +1,44 @@
+{
+    "graphs": {
+        "numb_nodes": 100,
+        "seed": 42,
+
+        "type_1": {
+            "sigma": 0.2,
+            "weight_threshold": 0.6
+        },
+
+        "type_2": {
+            "sigma": 0.2,
+            "alpha": 0.5
+        },
+
+        "type_3": {
+            "c": 3
+        },
+
+        "type_4": {
+            "numb_connections": 2
+        }
+    },
+
+    "filters": {
+        "tikhonov": {
+            "a": 10.0
+        },
+
+        "generative": {},
+
+        "heat": {
+            "a": 10.0
+        }
+    },
+
+    "signals_generation": {
+        "numb_signals": 1000,
+        "noise_level": 0.1,
+        "seed": 42
+    },
+
+    "numb_repetitions": 20
+}
